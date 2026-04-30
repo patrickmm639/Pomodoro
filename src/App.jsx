@@ -94,6 +94,13 @@ function App() {
 
 
   const toggleTimer = () => {
+    if (!isRunning && audioRef.current) {
+      // Unlock audio on first user interaction to ensure it plays in background tabs
+      audioRef.current.play().then(() => {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }).catch(e => console.log('Audio unlock failed:', e));
+    }
     setIsRunning(!isRunning);
   };
 
@@ -109,7 +116,7 @@ function App() {
 
   return (
     <div className="app-container animate-slide-up glass-panel">
-      
+
       <div className="header">
         <h1>Pomodoro</h1>
         <div className="cycles">
@@ -138,11 +145,11 @@ function App() {
         <button className="control-btn" onClick={resetTimer} title="Reset">
           <RotateCcw size={24} />
         </button>
-        
+
         <button className="control-btn primary" onClick={toggleTimer}>
           {isRunning ? <Pause size={32} fill="currentColor" /> : <Play size={32} fill="currentColor" className="ml-1" />}
         </button>
-        
+
         <button className="control-btn" onClick={() => { setIsRunning(false); setTimeLeft(0); }} title="Skip">
           <Square size={24} fill="currentColor" />
         </button>
