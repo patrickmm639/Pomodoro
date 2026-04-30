@@ -14,23 +14,69 @@ function App() {
   const [isRunning, setIsRunning] = useState(false);
   const [cycles, setCycles] = useState(0);
 
-  // Audio reference
+  // Audio and Worker references
   const audioRef = useRef(null);
+  const workerRef = useRef(null);
 
   useEffect(() => {
     // Create audio object for notification
-    // Using a subtle bell sound URL for the notification
     audioRef.current = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+
+    // Create a web worker to handle the timer interval.
+    // This prevents the browser from throttling the timer when the tab is inactive.
+    const workerCode = `
+      let interval;
+      self.onmessage = function(e) {
+        if (e.data === 'start') {
+          if (interval) clearInterval(interval);
+          interval = setInterval(() => {
+            self.postMessage('tick');
+          }, 1000);
+        } else if (e.data === 'stop') {
+          if (interval) clearInterval(interval);
+          interval = null;
+        }
+      };
+    `;
+    const blob = new Blob([workerCode], { type: 'application/javascript' });
+    workerRef.current = new Worker(URL.createObjectURL(blob));
+
+    return () => {
+      if (workerRef.current) {
+        workerRef.current.terminate();
+      }
+    };
   }, []);
 
-  useEffect(() => {
-    let interval = null;
+  const handleModeChange = (newMode) => {
+    setIsRunning(false);
+    setMode(newMode);
+    setTimeLeft(newMode.minutes * 60);
+  };
 
-    if (isRunning && timeLeft > 0) {
-      interval = setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
-      }, 1000);
-    } else if (isRunning && timeLeft === 0) {
+  // Effect to manage the Web Worker depending on running state
+  useEffect(() => {
+    if (!workerRef.current) return;
+
+    if (isRunning) {
+      workerRef.current.onmessage = () => {
+        setTimeLeft((prev) => {
+          return prev > 0 ? prev - 1 : 0;
+        });
+      };
+      workerRef.current.postMessage('start');
+    } else {
+      workerRef.current.postMessage('stop');
+    }
+
+    return () => {
+      workerRef.current.postMessage('stop');
+    };
+  }, [isRunning]);
+
+  // Effect to handle phase transitions when time reaches 0
+  useEffect(() => {
+    if (isRunning && timeLeft === 0) {
       // Timer finished
       setIsRunning(false);
       if (audioRef.current) {
@@ -39,25 +85,13 @@ function App() {
 
       if (mode.id === MODES.POMODORO.id) {
         setCycles((c) => c + 1);
-        // Switch to break automatically? 
-        // We'll let the user choose, or auto-switch to short break
         handleModeChange(MODES.SHORT_BREAK);
       } else {
-        // Back to work
         handleModeChange(MODES.POMODORO);
       }
     }
+  }, [timeLeft, isRunning, mode]);
 
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isRunning, timeLeft, mode]);
-
-  const handleModeChange = (newMode) => {
-    setIsRunning(false);
-    setMode(newMode);
-    setTimeLeft(newMode.minutes * 60);
-  };
 
   const toggleTimer = () => {
     setIsRunning(!isRunning);
