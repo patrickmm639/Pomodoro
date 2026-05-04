@@ -83,6 +83,13 @@ function App() {
         audioRef.current.play().catch(e => console.log('Audio play blocked:', e));
       }
 
+      // Show browser notification
+      if ("Notification" in window && Notification.permission === "granted") {
+        const title = mode.id === MODES.POMODORO.id ? "¡Pomodoro Terminado!" : "¡Descanso Terminado!";
+        const body = mode.id === MODES.POMODORO.id ? "Es hora de tomar un descanso." : "¡Es hora de concentrarse!";
+        new Notification(title, { body });
+      }
+
       if (mode.id === MODES.POMODORO.id) {
         setCycles((c) => c + 1);
         handleModeChange(MODES.SHORT_BREAK);
@@ -94,12 +101,19 @@ function App() {
 
 
   const toggleTimer = () => {
-    if (!isRunning && audioRef.current) {
-      // Unlock audio on first user interaction to ensure it plays in background tabs
-      audioRef.current.play().then(() => {
-        audioRef.current.pause();
-        audioRef.current.currentTime = 0;
-      }).catch(e => console.log('Audio unlock failed:', e));
+    if (!isRunning) {
+      if (audioRef.current) {
+        // Unlock audio on first user interaction to ensure it plays in background tabs
+        audioRef.current.play().then(() => {
+          audioRef.current.pause();
+          audioRef.current.currentTime = 0;
+        }).catch(e => console.log('Audio unlock failed:', e));
+      }
+      
+      // Request notification permissions
+      if ("Notification" in window && Notification.permission === "default") {
+        Notification.requestPermission();
+      }
     }
     setIsRunning(!isRunning);
   };
