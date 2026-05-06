@@ -9,8 +9,30 @@ const MODES = {
 };
 
 function App() {
-  const [mode, setMode] = useState(MODES.POMODORO);
-  const [timeLeft, setTimeLeft] = useState(MODES.POMODORO.minutes * 60);
+  const [mode, setMode] = useState(() => {
+    const savedMode = localStorage.getItem('pomodoroMode');
+    const foundMode = Object.values(MODES).find(m => m.id === savedMode);
+    return foundMode || MODES.POMODORO;
+  });
+
+  const [timeLeft, setTimeLeft] = useState(() => {
+    const savedTime = localStorage.getItem('pomodoroTimeLeft');
+    if (savedTime !== null) {
+      return parseInt(savedTime, 10);
+    }
+    const savedMode = localStorage.getItem('pomodoroMode');
+    const foundMode = Object.values(MODES).find(m => m.id === savedMode) || MODES.POMODORO;
+    return foundMode.minutes * 60;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('pomodoroMode', mode.id);
+  }, [mode]);
+
+  useEffect(() => {
+    localStorage.setItem('pomodoroTimeLeft', timeLeft.toString());
+  }, [timeLeft]);
+
   const [isRunning, setIsRunning] = useState(false);
   const [pomodorosCompleted, setPomodorosCompleted] = useState(() => {
     const saved = localStorage.getItem('pomodorosCompleted');
