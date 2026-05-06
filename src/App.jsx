@@ -12,7 +12,15 @@ function App() {
   const [mode, setMode] = useState(MODES.POMODORO);
   const [timeLeft, setTimeLeft] = useState(MODES.POMODORO.minutes * 60);
   const [isRunning, setIsRunning] = useState(false);
-  const [pomodorosCompleted, setPomodorosCompleted] = useState(0);
+  const [pomodorosCompleted, setPomodorosCompleted] = useState(() => {
+    const saved = localStorage.getItem('pomodorosCompleted');
+    return saved ? parseInt(saved, 10) : 0;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('pomodorosCompleted', pomodorosCompleted.toString());
+  }, [pomodorosCompleted]);
+
   const [notificationPermission, setNotificationPermission] = useState(
     "Notification" in window ? Notification.permission : "denied"
   );
