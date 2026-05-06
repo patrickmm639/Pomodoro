@@ -1,16 +1,37 @@
-# React + Vite
+# Pomodoro App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Una aplicación de Pomodoro moderna y elegante construida con React y Vite.
 
-Currently, two official plugins are available:
+## Cómo correr la app de forma local
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Sigue estos pasos para ejecutar la aplicación en tu entorno de desarrollo local:
 
-## React Compiler
+1. **Abre una terminal** y navega hasta el directorio del proyecto:
+   ```bash
+   cd c:\Users\pmunozm\Documents\Pomodoro
+   ```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+2. **Instala las dependencias**:
+   Asegúrate de tener [Node.js](https://nodejs.org/) instalado. Luego, ejecuta:
+   ```bash
+   npm install
+   ```
 
-## Expanding the ESLint configuration
+3. **Inicia el servidor de desarrollo local**:
+   Una vez instaladas las dependencias, levanta el servidor de desarrollo con el siguiente comando:
+   ```bash
+   npm run dev
+   ```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+4. **Abre la aplicación**:
+   En la terminal aparecerá una URL local (generalmente `http://localhost:5173/`). Ábrela en tu navegador web para utilizar la aplicación. 
+
+## Características
+- Temporizador Pomodoro con tiempos personalizables (Pomodoro, Descanso Corto, Descanso Largo).
+- Notificaciones de escritorio para los cambios de ciclo.
+- Ejecución precisa en segundo plano.
+
+## Tecnologías utilizadas
+- React
+- Vite
+- Lucide React (para iconos)

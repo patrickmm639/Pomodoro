@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, Pause, Square, RotateCcw, Flame } from 'lucide-react';
+import { Play, Pause, Square, RotateCcw, Flame, Bell } from 'lucide-react';
 import './index.css';
 
 const MODES = {
@@ -13,6 +13,9 @@ function App() {
   const [timeLeft, setTimeLeft] = useState(MODES.POMODORO.minutes * 60);
   const [isRunning, setIsRunning] = useState(false);
   const [cycles, setCycles] = useState(0);
+  const [notificationPermission, setNotificationPermission] = useState(
+    "Notification" in window ? Notification.permission : "denied"
+  );
 
   // Audio and Worker references
   const audioRef = useRef(null);
@@ -99,6 +102,14 @@ function App() {
     }
   }, [timeLeft, isRunning, mode]);
 
+  const requestNotificationPermission = () => {
+    if ("Notification" in window) {
+      Notification.requestPermission().then(permission => {
+        setNotificationPermission(permission);
+      });
+    }
+  };
+
 
   const toggleTimer = () => {
     if (!isRunning) {
@@ -110,10 +121,8 @@ function App() {
         }).catch(e => console.log('Audio unlock failed:', e));
       }
       
-      // Request notification permissions
-      if ("Notification" in window && Notification.permission === "default") {
-        Notification.requestPermission();
-      }
+      // Notification permissions are now handled manually by the user
+
     }
     setIsRunning(!isRunning);
   };
@@ -130,6 +139,18 @@ function App() {
 
   return (
     <div className="app-container animate-slide-up glass-panel">
+
+      {notificationPermission === "default" && (
+        <div className="notification-prompt" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: 'rgba(255, 255, 255, 0.1)', padding: '10px 15px', borderRadius: '8px', marginBottom: '15px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.9rem' }}>
+            <Bell size={18} />
+            <span>Activa las notificaciones para las alertas.</span>
+          </div>
+          <button onClick={requestNotificationPermission} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.3)', color: '#fff', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem' }}>
+            Activar
+          </button>
+        </div>
+      )}
 
       <div className="header">
         <h1>Pomodoro</h1>
