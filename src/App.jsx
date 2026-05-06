@@ -12,7 +12,7 @@ function App() {
   const [mode, setMode] = useState(MODES.POMODORO);
   const [timeLeft, setTimeLeft] = useState(MODES.POMODORO.minutes * 60);
   const [isRunning, setIsRunning] = useState(false);
-  const [cycles, setCycles] = useState(0);
+  const [pomodorosCompleted, setPomodorosCompleted] = useState(0);
   const [notificationPermission, setNotificationPermission] = useState(
     "Notification" in window ? Notification.permission : "denied"
   );
@@ -94,13 +94,19 @@ function App() {
       }
 
       if (mode.id === MODES.POMODORO.id) {
-        setCycles((c) => c + 1);
-        handleModeChange(MODES.SHORT_BREAK);
+        const newPomodorosCompleted = pomodorosCompleted + 1;
+        setPomodorosCompleted(newPomodorosCompleted);
+        
+        if (newPomodorosCompleted % 4 === 0) {
+          handleModeChange(MODES.LONG_BREAK);
+        } else {
+          handleModeChange(MODES.SHORT_BREAK);
+        }
       } else {
         handleModeChange(MODES.POMODORO);
       }
     }
-  }, [timeLeft, isRunning, mode]);
+  }, [timeLeft, isRunning, mode, pomodorosCompleted]);
 
   const requestNotificationPermission = () => {
     if ("Notification" in window) {
@@ -156,7 +162,7 @@ function App() {
         <h1>Pomodoro</h1>
         <div className="cycles">
           <Flame size={18} color="#ff2a5f" />
-          <span>{cycles} Cycles Completed</span>
+          <span>{Math.floor(pomodorosCompleted / 4)} Cycles Completed</span>
         </div>
       </div>
 
