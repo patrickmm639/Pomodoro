@@ -35,12 +35,18 @@ function App() {
 
   const [isRunning, setIsRunning] = useState(false);
   const [pomodorosCompleted, setPomodorosCompleted] = useState(() => {
+    const todayDate = new Date().toDateString();
+    const savedDate = localStorage.getItem('pomodoroDate');
+    if (savedDate !== todayDate) {
+      return 0;
+    }
     const saved = localStorage.getItem('pomodorosCompleted');
     return saved ? parseInt(saved, 10) : 0;
   });
 
   useEffect(() => {
     localStorage.setItem('pomodorosCompleted', pomodorosCompleted.toString());
+    localStorage.setItem('pomodoroDate', new Date().toDateString());
   }, [pomodorosCompleted]);
 
   const [notificationPermission, setNotificationPermission] = useState(
@@ -124,7 +130,11 @@ function App() {
       }
 
       if (mode.id === MODES.POMODORO.id) {
-        const newPomodorosCompleted = pomodorosCompleted + 1;
+        const todayDate = new Date().toDateString();
+        const savedDate = localStorage.getItem('pomodoroDate');
+        const currentCompleted = savedDate !== todayDate ? 0 : pomodorosCompleted;
+        
+        const newPomodorosCompleted = currentCompleted + 1;
         setPomodorosCompleted(newPomodorosCompleted);
         
         if (newPomodorosCompleted % 4 === 0) {
